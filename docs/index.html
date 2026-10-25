@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Source Contributions</title>
+<meta name="description" content="Pull requests opened on other people's repositories, refreshed daily by GitHub Actions.">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11, 11, 11, 0.10);
+    --wash: rgba(11, 11, 11, 0.04);
+    --link: #1c5cab;
+    --add: #006300;
+    --del: #d03b3b;
+    --merged: #2a78d6;
+    --open: #1baf7a;
+    --closed: #eb6834;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255, 255, 255, 0.10);
+      --wash: rgba(255, 255, 255, 0.05);
+      --link: #6da7ec;
+      --add: #0ca30c;
+      --del: #e66767;
+      --merged: #3987e5;
+      --open: #199e70;
+      --closed: #d95926;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--ink);
+    font: 14px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  a { color: var(--link); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  main { max-width: 1080px; margin: 0 auto; padding: 32px 16px 48px; display: grid; gap: 16px; }
+
+  header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  header img { width: 48px; height: 48px; border-radius: 50%; border: 1px solid var(--border); }
+  h1 { font-size: 22px; line-height: 1.2; margin: 0; font-weight: 600; }
+  h2 { font-size: 15px; margin: 0; font-weight: 600; }
+  .meta { color: var(--ink-2); font-size: 13px; }
+
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; min-width: 0; }
+  .card-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 16px; }
+  .sub { color: var(--ink-2); font-size: 13px; margin-top: 2px; }
+
+  .kpis { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 2fr); gap: 16px; }
+  .hero-value { font-size: 56px; font-weight: 600; line-height: 1; margin: 10px 0 8px; }
+  .tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .tile-label { color: var(--ink-2); font-size: 13px; }
+  .tile-value { font-size: 26px; font-weight: 600; line-height: 1.2; margin-top: 4px; }
+  .tile-value small { font-size: 14px; font-weight: 500; }
+  .tile-note { color: var(--ink-2); font-size: 12px; margin-top: 2px; }
+
+  .segmented { display: inline-flex; border: 1px solid var(--border); border-radius: 8px; padding: 2px; gap: 2px; }
+  .segmented button {
+    border: 0; background: none; color: var(--ink-2); font: inherit; font-size: 13px;
+    padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  }
+  .segmented button:hover { background: var(--wash); }
+  .segmented button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+  .segmented .count { opacity: 0.7; margin-left: 4px; font-variant-numeric: tabular-nums; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; color: var(--ink-2); font-size: 13px; margin-bottom: 8px; }
+  .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 6px; vertical-align: -1px; }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; vertical-align: 1px; flex: none; }
+  .dot.draft { background: none !important; box-shadow: inset 0 0 0 2px var(--open); }
+
+  #chart { position: relative; height: 240px; }
+  #chart svg { display: block; overflow: visible; }
+  #chart text { fill: var(--muted); font-size: 11px; font-variant-numeric: tabular-nums; }
+  .band { fill: transparent; cursor: default; outline: none; }
+  .band:hover, .band:focus-visible { fill: var(--wash); }
+  .tooltip {
+    position: absolute; pointer-events: none; z-index: 1; min-width: 140px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); padding: 8px 10px; font-size: 12px;
+  }
+  .tooltip strong { display: block; margin-bottom: 4px; }
+  .tooltip .row { display: flex; align-items: center; gap: 6px; color: var(--ink-2); }
+  .tooltip .row b { margin-left: auto; color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  .repos { display: grid; gap: 2px; }
+  .repo {
+    display: grid; grid-template-columns: 24px minmax(0, 1fr) 72px 110px 190px; align-items: center; gap: 12px;
+    padding: 10px 8px; border-radius: 8px;
+  }
+  .repo:hover { background: var(--wash); }
+  .repo img { width: 24px; height: 24px; border-radius: 6px; }
+  .repo-name { font-weight: 600; overflow-wrap: anywhere; }
+  .repo-desc { color: var(--ink-2); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .repo-stars, .repo-lang { color: var(--ink-2); font-size: 13px; white-space: nowrap; }
+  .repo-stars { text-align: right; font-variant-numeric: tabular-nums; }
+  .split { display: flex; gap: 2px; height: 6px; margin-bottom: 4px; }
+  .split span { border-radius: 2px; min-width: 4px; }
+  .repo-prs { border: 0; background: none; padding: 0; font: inherit; font-size: 12px; color: var(--ink-2); text-align: left; cursor: pointer; width: 100%; }
+  .repo-prs:hover .split-text { color: var(--link); text-decoration: underline; }
+
+  .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 12px; }
+  .filters select, .filters input {
+    font: inherit; font-size: 13px; color: var(--ink); background: var(--surface);
+    border: 1px solid var(--border); border-radius: 8px; padding: 5px 10px; min-width: 0;
+  }
+  .filters input { flex: 1 1 180px; }
+  .filters select { flex: 0 1 240px; max-width: 100%; }
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: left; font-weight: 500; color: var(--ink-2); font-size: 12px; padding: 8px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+  td { padding: 10px 8px; border-bottom: 1px solid var(--grid); vertical-align: top; }
+  tr:last-child td { border-bottom: 0; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  td.date { white-space: nowrap; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+  .status { white-space: nowrap; }
+  .pr-title { font-weight: 500; overflow-wrap: anywhere; }
+  .pr-repo { color: var(--ink-2); font-size: 12px; }
+  .add { color: var(--add); }
+  .del { color: var(--del); }
+  .sha { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  .empty { color: var(--ink-2); padding: 24px 8px; text-align: center; }
+  footer { color: var(--ink-2); font-size: 12px; text-align: center; margin-top: 8px; }
+
+  @media (max-width: 760px) {
+    main { padding-top: 20px; }
+    .kpis { grid-template-columns: minmax(0, 1fr); }
+    .hero-value { font-size: 48px; }
+    .repo { grid-template-columns: 24px minmax(0, 1fr) auto; row-gap: 6px; }
+    .repo-lang { display: none; }
+    .repo-prs { grid-column: 2 / -1; }
+    .hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <img id="avatar" alt="" hidden>
+    <div>
+      <h1>Open source contributions</h1>
+      <div class="meta" id="meta">Loading…</div>
+    </div>
+  </header>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Pull requests per month</h2>
+        <div class="sub">By month opened, colored by current status</div>
+      </div>
+      <div class="segmented" id="range"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+    <div id="chart"></div>
+  </section>
+
+  <section class="card">
+    <div class="card-head">
+      <div>
+        <h2>Repositories</h2>
+        <div class="sub">Ranked by stars. Select a PR count to filter the list below.</div>
+      </div>
+    </div>
+    <div class="repos" id="repos"></div>
+  </section>
+
+  <section class="card" id="prs-card">
+    <div class="card-head">
+      <div>
+        <h2>Pull requests</h2>
+        <div class="sub" id="prs-count"></div>
+      </div>
+    </div>
+    <div class="filters">
+      <div class="segmented" id="status-filter"></div>
+      <select id="repo-filter" aria-label="Repository"></select>
+      <input id="search" type="search" placeholder="Search titles" aria-label="Search pull request titles">
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Pull request</th>
+            <th class="num hide-sm">Commits</th>
+            <th class="num">Changes</th>
+            <th class="hide-sm">Opened</th>
+            <th>Landed</th>
+          </tr>
+        </thead>
+        <tbody id="prs"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer id="footer">Scanned daily by GitHub Actions</footer>
+</main>
+
+<script>
+  const STATUSES = [
+    { key: "merged", label: "Merged" },
+    { key: "open", label: "Open" },
+    { key: "closed", label: "Closed" },
+  ];
+  const RANGES = [
+    { key: 12, label: "12 mo" },
+    { key: 24, label: "24 mo" },
+    { key: "all", label: "All" },
+  ];
+  const state = { range: 24, status: "all", repo: "", query: "" };
+  let data;
+
+  const nf = new Intl.NumberFormat("en-US");
+  const compact = new Intl.NumberFormat("en-US", { notation: "compact", maximumFractionDigits: 1 });
+  const dateFmt = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" });
+  const monthFmt = new Intl.DateTimeFormat("en-US", { month: "short", year: "numeric", timeZone: "UTC" });
+  const shortMonthFmt = new Intl.DateTimeFormat("en-US", { month: "short", timeZone: "UTC" });
+  const $ = (id) => document.getElementById(id);
+  const color = (status) => `var(--${status})`;
+
+  function h(tag, attrs = {}, ...children) {
+    const el = document.createElement(tag);
+    for (const [key, value] of Object.entries(attrs)) {
+      if (value == null || value === false) continue;
+      if (key.startsWith("on")) el.addEventListener(key.slice(2), value);
+      else if (key === "style") el.style.cssText = value;
+      else el.setAttribute(key === "className" ? "class" : key, value);
+    }
+    el.append(...children.flat().filter((c) => c != null && c !== false));
+    return el;
+  }
+
+  function s(tag, attrs = {}) {
+    const el = document.createElementNS("http://www.w3.org/2000/svg", tag);
+    for (const [key, value] of Object.entries(attrs)) el.setAttribute(key, value);
+    return el;
+  }
+
+  function segmented(host, options, current, onSelect) {
+    host.replaceChildren(
+      ...options.map((o) =>
+        h("button", { type: "button", "aria-pressed": String(o.key === current), onclick: () => onSelect(o.key) },
+          o.label, o.count != null ? h("span", { className: "count" }, o.count) : null
+        )
+      )
+    );
+  }
+
+  function renderHeader() {
+    const { username, generatedAt } = data;
+    const avatar = $("avatar");
+    avatar.src = `https://github.com/${username}.png?size=96`;
+    avatar.hidden = false;
+    $("meta").replaceChildren(
+      h("a", { href: `https://github.com/${username}` }, `@${username}`),
+      generatedAt ? ` · last changed ${dateFmt.format(new Date(generatedAt))}` : ""
+    );
+    // On GitHub Pages (user.github.io/repo/), link back to the source repo.
+    const [user] = location.hostname.split(".");
+    const [, repo] = location.pathname.split("/");
+    if (location.hostname.endsWith(".github.io") && repo) {
+      $("footer").replaceChildren(
+        "Scanned daily by GitHub Actions · ",
+        h("a", { href: `https://github.com/${user}/${repo}` }, "Source")
+      );
+    }
+  }
+
+  function renderKpis() {
+    const sm = data.summary;
+    const tile = (label, value, note) =>
+      h("div", { className: "card" },
+        h("div", { className: "tile-label" }, label),
+        h("div", { className: "tile-value" }, value),
+        note && h("div", { className: "tile-note" }, note)
+      );
+    $("kpis").replaceChildren(
+      h("div", { className: "card" },
+        h("div", { className: "tile-label" }, "Merged pull requests"),
+        h("div", { className: "hero-value" }, nf.format(sm.merged)),
+        h("div", { className: "sub" },
+          `of ${nf.format(sm.pullRequests)} opened`,
+          sm.mergeRate != null ? ` · ${sm.mergeRate}% of decided PRs merged` : ""
+        )
+      ),
+      h("div", { className: "tiles" },
+        tile("Repositories", nf.format(sm.repositories)),
+        tile("Open now", nf.format(sm.open), sm.closed ? `${nf.format(sm.closed)} closed without merging` : null),
+        tile("Commits in PRs", compact.format(sm.commits)),
+        tile("Lines changed",
+          h("span", {}, h("span", { className: "add" }, `+${compact.format(sm.additions)}`), " ",
+            h("small", { className: "del" }, `−${compact.format(sm.deletions)}`)))
+      )
+    );
+  }
+
+  function monthKey(date) {
+    return `${date.getUTCFullYear()}-${String(date.getUTCMonth() + 1).padStart(2, "0")}`;
+  }
+
+  function monthsInRange() {
+    const now = new Date();
+    const end = Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1);
+    let start;
+    if (state.range === "all") {
+      const first = data.pullRequests.reduce((min, pr) => (pr.createdAt < min ? pr.createdAt : min), now.toISOString());
+      const d = new Date(first);
+      start = Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), 1);
+    } else {
+      start = Date.UTC(now.getUTCFullYear(), now.getUTCMonth() - (state.range - 1), 1);
+    }
+    const months = [];
+    for (let d = new Date(start); d.getTime() <= end; d.setUTCMonth(d.getUTCMonth() + 1)) months.push(new Date(d));
+    return months;
+  }
+
+  function niceStep(max) {
+    for (const step of [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000]) if (max / step <= 4) return step;
+    return Math.ceil(max / 4);
+  }
+
+  function roundedTop(x, y, w, h, r) {
+    r = Math.min(r, h, w / 2);
+    return `M${x},${y + h}V${y + r}A${r},${r} 0 0 1 ${x + r},${y}H${x + w - r}A${r},${r} 0 0 1 ${x + w},${y + r}V${y + h}Z`;
+  }
+
+  function renderChart() {
+    segmented($("range"), RANGES, state.range, (key) => { state.range = key; renderChart(); });
+    $("legend").replaceChildren(
+      ...STATUSES.map((st) => h("span", {}, h("span", { className: "swatch", style: `background:${color(st.key)}` }), st.label))
+    );
+
+    const host = $("chart");
+    const months = monthsInRange();
+    const buckets = new Map(months.map((m) => [monthKey(m), { merged: 0, open: 0, closed: 0 }]));
+    for (const pr of data.pullRequests) {
+      const bucket = buckets.get(monthKey(new Date(pr.createdAt)));
+      if (bucket) bucket[pr.status]++;
+    }
+
+    const width = host.clientWidth;
+    const height = host.clientHeight;
+    const m = { top: 10, right: 4, bottom: 26, left: 28 };
+    const innerW = width - m.left - m.right;
+    const innerH = height - m.top - m.bottom;
+    const totals = months.map((mo) => Object.values(buckets.get(monthKey(mo))).reduce((a, b) => a + b, 0));
+    const step = niceStep(Math.max(1, ...totals));
+    const yMax = Math.ceil(Math.max(1, ...totals) / step) * step;
+    const y = (v) => m.top + innerH - (v / yMax) * innerH;
+    const band = innerW / months.length;
+    const barW = Math.max(2, Math.min(24, band * 0.64));
+
+    const root = s("svg", { width, height, role: "img", "aria-label": "Pull requests opened per month, stacked by status" });
+    for (let v = 0; v <= yMax; v += step) {
+      root.append(s("line", { x1: m.left, x2: width - m.right, y1: y(v), y2: y(v), stroke: v === 0 ? "var(--axis)" : "var(--grid)", "stroke-width": 1, "shape-rendering": "crispEdges" }));
+      const label = s("text", { x: m.left - 8, y: y(v), "text-anchor": "end", "dominant-baseline": "middle" });
+      label.textContent = compact.format(v);
+      root.append(label);
+    }
+
+    const tooltip = h("div", { className: "tooltip", hidden: true });
+    const labelEvery = Math.max(1, Math.ceil(months.length / Math.max(1, Math.floor(innerW / 56))));
+
+    months.forEach((mo, i) => {
+      const counts = buckets.get(monthKey(mo));
+      const x0 = m.left + i * band;
+      const bx = x0 + (band - barW) / 2;
+      const hit = s("rect", { x: x0, y: m.top, width: band, height: innerH, class: "band", tabindex: 0,
+        "aria-label": `${monthFmt.format(mo)}: ${STATUSES.map((st) => `${counts[st.key]} ${st.label.toLowerCase()}`).join(", ")}` });
+      root.append(hit);
+
+      // Stack bottom-up; a 2px surface gap separates segments and only the top one is rounded.
+      const present = STATUSES.filter((st) => counts[st.key] > 0);
+      let base = 0;
+      present.forEach((st, j) => {
+        const top = base + counts[st.key];
+        const yTop = y(top);
+        const segH = y(base) - yTop - (j > 0 ? 2 : 0);
+        if (segH > 0) {
+          root.append(j === present.length - 1
+            ? s("path", { d: roundedTop(bx, yTop, barW, segH, 4), fill: color(st.key), "pointer-events": "none" })
+            : s("rect", { x: bx, y: yTop, width: barW, height: segH, fill: color(st.key), "pointer-events": "none" }));
+        }
+        base = top;
+      });
+
+      if ((months.length - 1 - i) % labelEvery === 0) {
+        const label = s("text", { x: x0 + band / 2, y: height - 8, "text-anchor": "middle" });
+        label.textContent = `${shortMonthFmt.format(mo)} ’${String(mo.getUTCFullYear()).slice(2)}`;
+        root.append(label);
+      }
+
+      const show = () => {
+        tooltip.replaceChildren(
+          h("strong", {}, monthFmt.format(mo)),
+          ...STATUSES.map((st) => h("div", { className: "row" },
+            h("span", { className: "swatch", style: `background:${color(st.key)}` }), st.label, h("b", {}, counts[st.key])))
+        );
+        tooltip.hidden = false;
+        const tipW = tooltip.offsetWidth;
+        const center = x0 + band / 2;
+        const left = center + 12 + tipW > width ? center - 12 - tipW : center + 12;
+        tooltip.style.left = `${Math.max(0, left)}px`;
+        tooltip.style.top = `${m.top}px`;
+      };
+      hit.addEventListener("pointerenter", show);
+      hit.addEventListener("focus", show);
+      hit.addEventListener("pointerleave", () => (tooltip.hidden = true));
+      hit.addEventListener("blur", () => (tooltip.hidden = true));
+    });
+
+    host.replaceChildren(root, tooltip);
+  }
+
+  function renderRepos() {
+    const entries = Object.entries(data.repositories);
+    if (!entries.length) {
+      $("repos").replaceChildren(h("div", { className: "empty" }, "No repositories yet."));
+      return;
+    }
+    $("repos").replaceChildren(...entries.map(([name, r]) => {
+      const parts = STATUSES.filter((st) => r[st.key] > 0);
+      return h("div", { className: "repo" },
+        h("img", { src: r.avatarUrl, alt: "", loading: "lazy" }),
+        h("div", { style: "min-width:0" },
+          h("a", { className: "repo-name", href: r.url }, name),
+          r.archived ? h("span", { className: "meta" }, " · archived") : null,
+          r.description ? h("div", { className: "repo-desc", title: r.description }, r.description) : null
+        ),
+        h("div", { className: "repo-stars", title: `${nf.format(r.stars)} stars` }, `★ ${compact.format(r.stars)}`),
+        h("div", { className: "repo-lang" },
+          r.language ? [h("span", { className: "dot", style: `background:${r.languageColor ?? "var(--muted)"}` }), r.language] : "—"),
+        h("button", { className: "repo-prs", type: "button", title: "Show these pull requests",
+            onclick: () => { state.repo = name; state.status = "all"; renderPrs(); $("prs-card").scrollIntoView({ behavior: "smooth" }); } },
+          h("div", { className: "split" },
+            ...parts.map((st) => h("span", { style: `flex:${r[st.key]};background:${color(st.key)}` }))),
+          h("span", { className: "split-text" },
+            parts.map((st) => `${r[st.key]} ${st.label.toLowerCase()}`).join(" · "))
+        )
+      );
+    }));
+  }
+
+  function renderPrs() {
+    const all = data.pullRequests;
+    const byStatus = (key) => all.filter((pr) => key === "all" || pr.status === key).length;
+    segmented($("status-filter"),
+      [{ key: "all", label: "All", count: all.length }, ...STATUSES.map((st) => ({ ...st, count: byStatus(st.key) }))],
+      state.status, (key) => { state.status = key; renderPrs(); });
+
+    const select = $("repo-filter");
+    select.replaceChildren(
+      h("option", { value: "" }, "All repositories"),
+      ...Object.keys(data.repositories).map((name) => h("option", { value: name }, name))
+    );
+    select.value = state.repo;
+
+    const query = state.query.trim().toLowerCase();
+    const rows = all.filter((pr) =>
+      (state.status === "all" || pr.status === state.status) &&
+      (!state.repo || pr.repo === state.repo) &&
+      (!query || pr.title.toLowerCase().includes(query) || pr.repo.toLowerCase().includes(query))
+    );
+    $("prs-count").textContent = rows.length === all.length
+      ? `${nf.format(all.length)} pull requests, newest first`
+      : `Showing ${nf.format(rows.length)} of ${nf.format(all.length)}`;
+
+    if (!rows.length) {
+      $("prs").replaceChildren(h("tr", {}, h("td", { colspan: 6, className: "empty" }, "No pull requests match these filters.")));
+      return;
+    }
+    $("prs").replaceChildren(...rows.map((pr) => {
+      const draft = pr.draft && pr.status === "open";
+      const label = draft ? "Draft" : STATUSES.find((st) => st.key === pr.status).label;
+      return h("tr", {},
+        h("td", { className: "status" },
+          h("span", { className: `dot${draft ? " draft" : ""}`, style: `background:${color(pr.status)}` }), label),
+        h("td", {},
+          h("a", { className: "pr-title", href: pr.url }, pr.title),
+          h("div", { className: "pr-repo" }, `${pr.repo}#${pr.number}`)),
+        h("td", { className: "num hide-sm" }, nf.format(pr.commits)),
+        h("td", { className: "num" },
+          h("span", { className: "add" }, `+${compact.format(pr.additions)}`), " ",
+          h("span", { className: "del" }, `−${compact.format(pr.deletions)}`)),
+        h("td", { className: "date hide-sm" }, dateFmt.format(new Date(pr.createdAt))),
+        h("td", { className: "date" },
+          pr.mergedAt ? dateFmt.format(new Date(pr.mergedAt)) : "—",
+          pr.landedCommit ? [h("br"), h("a", { className: "sha", href: pr.landedCommit.url }, pr.landedCommit.sha.slice(0, 7))] : null)
+      );
+    }));
+  }
+
+  $("repo-filter").addEventListener("change", (e) => { state.repo = e.target.value; renderPrs(); });
+  $("search").addEventListener("input", (e) => { state.query = e.target.value; renderPrs(); });
+
+  fetch("contributions.json", { cache: "no-cache" })
+    .then((res) => {
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      return res.json();
+    })
+    .then((json) => {
+      data = json;
+      document.title = `@${data.username} · Open Source Contributions`;
+      renderHeader();
+      renderKpis();
+      renderChart();
+      renderRepos();
+      renderPrs();
+      let lastWidth = $("chart").clientWidth;
+      new ResizeObserver(() => {
+        if ($("chart").clientWidth !== lastWidth) { lastWidth = $("chart").clientWidth; renderChart(); }
+      }).observe($("chart"));
+    })
+    .catch((error) => {
+      $("meta").textContent = `Couldn't load contributions.json (${error.message}). Run scripts/update-board.mjs first.`;
+    });
+</script>
+</body>
+</html>
