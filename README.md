@@ -12,7 +12,7 @@ My pull requests to high-impact open source projects, refreshed daily by GitHub 
 | 🔵 Merged | [\[MPS\] Break .grad reference cycles in TestMPS.\_linear\_helper](https://github.com/pytorch/pytorch/pull/201955) | pytorch/pytorch#201955 | +4 −0 | [2026-10-24](https://github.com/pytorch/pytorch/commit/6b60e667b536e497019d5911405a023d2a12c6a2) |
 | 🔵 Merged | [\[MPS\] Halve test\_64bit\_binops peak memory so it fits 24 GB Macs](https://github.com/pytorch/pytorch/pull/201836) | pytorch/pytorch#201836 | +5 −1 | [2026-10-23](https://github.com/pytorch/pytorch/commit/86ca1f9efa96cb21ff452b81fdc9eddb611d3fa8) |
 
-<sub>Updated 2026-10-27 07:54 UTC · [Dashboard](https://lsyurea.github.io/Open-Source/)</sub>
+<sub>Updated 2026-10-28 08:36 UTC · [Dashboard](https://lsyurea.github.io/Open-Source/)</sub>
 <!-- BOARD:END -->
 
 <details>
