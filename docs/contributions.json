@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-10-29T08:31:39.129Z",
+  "generatedAt": "2026-10-30T08:41:03.020Z",
   "username": "lsyurea",
   "minStars": 20000,
   "summary": {
@@ -17,7 +17,7 @@
     "pytorch/pytorch": {
       "url": "https://github.com/pytorch/pytorch",
       "description": "Tensors and Dynamic neural networks in Python with strong GPU acceleration",
-      "stars": 105163,
+      "stars": 105011,
       "language": "Python",
       "languageColor": "#3572A5",
       "avatarUrl": "https://avatars.githubusercontent.com/u/21003710?v=4",
