@@ -20,11 +20,27 @@ jobs:
           GH_TOKEN: ${{ secrets.FORK_SYNC_TOKEN }}
         run: |
           failed=()
+
           for repo in $(gh repo list "$GITHUB_REPOSITORY_OWNER" --fork --no-archived --limit 1000 \
                           --json nameWithOwner -q '.[].nameWithOwner'); do
-            gh repo sync "$repo" || failed+=("$repo")
+
+            echo "Syncing $repo..."
+
+            output=$(gh repo sync "$repo" 2>&1)
+            status=$?
+
+            if [ $status -ne 0 ]; then
+              if echo "$output" | grep -qiE "permission|forbidden|403|access denied|not authorized"; then
+                echo "::warning::$repo skipped (no permission)"
+              else
+                echo "::warning::$repo failed:"
+                echo "$output"
+                failed+=("$repo")
+              fi
+            fi
           done
+
           if [ ${#failed[@]} -gt 0 ]; then
-            printf '::warning::could not sync %s\n' "${failed[@]}"
-            exit 1 # fail the run so GitHub sends a notification
+            printf '::warning::failed syncing: %s\n' "${failed[@]}"
+            exit 1
           fi
