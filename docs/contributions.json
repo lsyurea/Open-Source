@@ -1,34 +1,53 @@
 {
-  "generatedAt": "2026-10-30T08:41:03.020Z",
+  "generatedAt": "2026-10-31T08:27:59.963Z",
   "username": "lsyurea",
   "minStars": 20000,
   "summary": {
-    "pullRequests": 2,
-    "merged": 2,
+    "pullRequests": 3,
+    "merged": 3,
     "open": 0,
     "closed": 0,
     "mergeRate": 100,
     "repositories": 1,
-    "commits": 2,
-    "additions": 9,
+    "commits": 3,
+    "additions": 12,
     "deletions": 1
   },
   "repositories": {
     "pytorch/pytorch": {
       "url": "https://github.com/pytorch/pytorch",
       "description": "Tensors and Dynamic neural networks in Python with strong GPU acceleration",
-      "stars": 105011,
+      "stars": 105027,
       "language": "Python",
       "languageColor": "#3572A5",
       "avatarUrl": "https://avatars.githubusercontent.com/u/21003710?v=4",
       "archived": false,
-      "pullRequests": 2,
-      "merged": 2,
+      "pullRequests": 3,
+      "merged": 3,
       "open": 0,
       "closed": 0
     }
   },
   "pullRequests": [
+    {
+      "repo": "pytorch/pytorch",
+      "number": 202803,
+      "title": "[MPS] Relax the fp16 tolerance for combinations backward in TestConsistency",
+      "url": "https://github.com/pytorch/pytorch/pull/202803",
+      "status": "merged",
+      "draft": false,
+      "createdAt": "2026-10-30T19:12:38Z",
+      "mergedAt": "2026-10-31T06:26:10Z",
+      "closedAt": "2026-10-31T06:26:10Z",
+      "commits": 1,
+      "additions": 3,
+      "deletions": 0,
+      "changedFiles": 1,
+      "landedCommit": {
+        "sha": "60be10e8d32204d70af687411736ccb0d72de719",
+        "url": "https://github.com/pytorch/pytorch/commit/60be10e8d32204d70af687411736ccb0d72de719"
+      }
+    },
     {
       "repo": "pytorch/pytorch",
       "number": 201955,
