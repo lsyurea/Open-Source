@@ -1,0 +1,30 @@
+name: Sync forks
+
+on:
+  schedule:
+    - cron: "43 3 * * *" # daily at 03:43 UTC (off the hour to dodge GitHub's cron backlog)
+  workflow_dispatch:
+
+# GITHUB_TOKEN can only reach this repo, so the sync runs on FORK_SYNC_TOKEN:
+# a PAT with Contents + Workflows read/write on the forks (classic: repo + workflow).
+# Without the workflow permission, syncs fail whenever upstream touched .github/workflows.
+permissions: {}
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Sync every fork with its upstream
+        env:
+          GH_TOKEN: ${{ secrets.FORK_SYNC_TOKEN }}
+        run: |
+          failed=()
+          for repo in $(gh repo list "$GITHUB_REPOSITORY_OWNER" --fork --no-archived --limit 1000 \
+                          --json nameWithOwner -q '.[].nameWithOwner'); do
+            gh repo sync "$repo" || failed+=("$repo")
+          done
+          if [ ${#failed[@]} -gt 0 ]; then
+            printf '::warning::could not sync %s\n' "${failed[@]}"
+            exit 1 # fail the run so GitHub sends a notification
+          fi
