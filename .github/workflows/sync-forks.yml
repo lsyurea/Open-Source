@@ -26,10 +26,7 @@ jobs:
 
             echo "Syncing $repo..."
 
-            output=$(gh repo sync "$repo" 2>&1)
-            status=$?
-
-            if [ $status -ne 0 ]; then
+            if ! output=$(gh repo sync "$repo" 2>&1); then
               if echo "$output" | grep -qiE "permission|forbidden|403|access denied|not authorized"; then
                 echo "::warning::$repo skipped (no permission)"
               else
