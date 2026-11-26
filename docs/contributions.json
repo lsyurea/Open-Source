@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-11-25T11:20:04.214Z",
+  "generatedAt": "2026-11-26T10:57:08.013Z",
   "username": "lsyurea",
   "minStars": 20000,
   "summary": {
@@ -9,7 +9,7 @@
     "closed": 3,
     "mergeRate": 50,
     "repositories": 2,
-    "commits": 14,
+    "commits": 15,
     "additions": 201,
     "deletions": 23
   },
@@ -17,7 +17,7 @@
     "pytorch/pytorch": {
       "url": "https://github.com/pytorch/pytorch",
       "description": "Tensors and Dynamic neural networks in Python with strong GPU acceleration",
-      "stars": 105719,
+      "stars": 105775,
       "language": "Python",
       "languageColor": "#3572A5",
       "avatarUrl": "https://avatars.githubusercontent.com/u/21003710?v=4",
@@ -30,7 +30,7 @@
     "vllm-project/vllm": {
       "url": "https://github.com/vllm-project/vllm",
       "description": "A high-throughput and memory-efficient inference and serving engine for LLMs",
-      "stars": 97551,
+      "stars": 97609,
       "language": "Python",
       "languageColor": "#3572A5",
       "avatarUrl": "https://avatars.githubusercontent.com/u/136984999?v=4",
@@ -68,7 +68,7 @@
       "createdAt": "2026-11-09T08:42:13Z",
       "mergedAt": null,
       "closedAt": null,
-      "commits": 6,
+      "commits": 7,
       "additions": 76,
       "deletions": 1,
       "changedFiles": 4,
